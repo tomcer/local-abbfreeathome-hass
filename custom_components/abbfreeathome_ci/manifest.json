@@ -8,7 +8,7 @@
   "homekit": {},
   "iot_class": "local_push",
   "loggers": ["abbfreeathome"],
-  "requirements": ["local-abbfreeathome @ git+https://github.com/tomcer/local-abbfreeathome@feat/scenes"],
+  "requirements": ["local-abbfreeathome @ git+https://github.com/tomcer/local-abbfreeathome@main"],
   "ssdp": [],
   "version": "1.13.0-scene",
   "zeroconf": [
