@@ -155,6 +155,11 @@ class FreeAtHomeCoverEntity(CoverEntity):
     @property
     def current_cover_position(self) -> int:
         """Get current position."""
+        # AwningActuator has inverted semantics vs blinds: its raw position
+        # already matches HA (0 = retracted/closed, 100 = extended/open), so it
+        # must NOT be inverted. See issue #244.
+        if isinstance(self._channel, AwningActuator):
+            return self._channel.position
         return abs(self._channel.position - 100)
 
     @property
@@ -173,6 +178,9 @@ class FreeAtHomeCoverEntity(CoverEntity):
     @property
     def is_closed(self) -> bool:
         """If the cover is closed or not."""
+        # Awning: raw position 0 = retracted/closed (see issue #244).
+        if isinstance(self._channel, AwningActuator):
+            return self._channel.position == 0
         return self._channel.position == 100
 
     @property
@@ -212,7 +220,11 @@ class FreeAtHomeCoverEntity(CoverEntity):
     async def async_set_cover_position(self, **kwargs: Any) -> None:
         """Move the cover to a specific position."""
 
-        _position = abs(kwargs[ATTR_POSITION] - 100)
+        # Awning: no inversion (see issue #244).
+        if isinstance(self._channel, AwningActuator):
+            _position = kwargs[ATTR_POSITION]
+        else:
+            _position = abs(kwargs[ATTR_POSITION] - 100)
         await self._channel.set_position(_position)
 
     async def async_stop_cover(self, **kwargs: Any) -> None:
