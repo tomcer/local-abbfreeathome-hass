@@ -210,12 +210,20 @@ class FreeAtHomeCoverEntity(CoverEntity):
         return _features
 
     async def async_open_cover(self, **kwargs: Any) -> None:
-        """Open the cover."""
-        await self._channel.open()
+        """Open the cover (awning: extend)."""
+        # Awning travel is inverted vs blinds: HA "open" = extended (raw 100),
+        # which is the channel's close/down direction. See issue #244.
+        if isinstance(self._channel, AwningActuator):
+            await self._channel.close()
+        else:
+            await self._channel.open()
 
     async def async_close_cover(self, **kwargs: Any) -> None:
-        """Close cover."""
-        await self._channel.close()
+        """Close cover (awning: retract)."""
+        if isinstance(self._channel, AwningActuator):
+            await self._channel.open()
+        else:
+            await self._channel.close()
 
     async def async_set_cover_position(self, **kwargs: Any) -> None:
         """Move the cover to a specific position."""
